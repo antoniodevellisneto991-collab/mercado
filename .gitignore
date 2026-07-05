@@ -1,0 +1,14 @@
+# ambiente virtual — cada máquina cria o seu
+.venv/
+
+# banco de dados — dados reais não vão para o repositório
+db.sqlite3
+*.sqlite3
+
+# gerados automaticamente
+__pycache__/
+*.pyc
+staticfiles/
+
+# macOS
+.DS_Store

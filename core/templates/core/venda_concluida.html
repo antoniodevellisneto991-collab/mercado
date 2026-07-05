@@ -1,0 +1,50 @@
+{% load l10n %}<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Venda #{{ venda.pk }}</title>
+<style>
+  /* estreito de propósito: é o embrião do comprovante para impressora térmica */
+  body { font-family: 'Courier New', monospace; max-width: 340px; margin: 1rem auto; color: #111; }
+  .aviso { text-align: center; font-weight: bold; border: 2px dashed #333; padding: .4rem; margin-bottom: .8rem; }
+  h1 { font-size: 1rem; text-align: center; margin: .3rem 0; }
+  p.meta { text-align: center; font-size: .85rem; margin: .2rem 0 .8rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  td { padding: .15rem 0; }
+  td.num { text-align: right; white-space: nowrap; }
+  .linha { border-top: 1px dashed #555; margin: .5rem 0; }
+  .total td { font-weight: bold; font-size: 1.05rem; }
+  .alerta { color: #a00; font-size: .8rem; }
+  .acoes { text-align: center; margin-top: 1.2rem; }
+  .acoes a, .acoes button { font-size: 1rem; padding: .5rem 1rem; }
+  @media print { .acoes { display: none; } body { margin: 0; } }
+</style>
+</head>
+<body>
+  <div class="aviso">SEM VALOR FISCAL<br>comprovante interno</div>
+  <h1>Venda #{{ venda.pk }}</h1>
+  <p class="meta">{{ venda.data_hora|date:'d/m/Y H:i' }} — {{ venda.get_forma_pagamento_display }}</p>
+
+  <div class="linha"></div>
+  <table>
+    {% for item in venda.itens.all %}
+    <tr>
+      <td>{{ item.produto.nome }}<br>
+        <small>{{ item.quantidade|unlocalize }} × R$ {{ item.preco_unitario }}</small>
+        {% if item.quantidade_sem_lote > 0 %}<br><span class="alerta">⚠ {{ item.quantidade_sem_lote|unlocalize }} sem cobertura de estoque</span>{% endif %}
+      </td>
+      <td class="num">R$ {{ item.subtotal|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="linha"></div>
+  <table>
+    <tr class="total"><td>TOTAL</td><td class="num">R$ {{ venda.total|floatformat:2 }}</td></tr>
+  </table>
+
+  <div class="acoes">
+    <button onclick="window.print()">Imprimir</button>
+    <a href="{% url 'caixa' %}">Nova venda</a>
+  </div>
+</body>
+</html>

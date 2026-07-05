@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+{% load l10n %}
+{% block titulo %}Entrada de mercadoria{% endblock %}
+
+{% block estilo %}
+<style>
+  .btn-fim { background: #1a4a7a; font-size: 1.2rem; }
+  small.sub { color: #777; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main>
+  <!-- coluna 1: lote sendo registrado -->
+  <section>
+    <h2>Registrar lote</h2>
+    <form method="post" action="{% url 'adicionar_lote' %}">
+      {% csrf_token %}
+      {% if form_lote.non_field_errors %}<div class="erro">{{ form_lote.non_field_errors }}</div>{% endif %}
+      <label>{{ form_lote.busca.label }} <small>({{ form_lote.busca.help_text }})</small></label>
+      {{ form_lote.busca }}{{ form_lote.busca.errors }}
+      <datalist id="produtos">
+        {% for nome in produtos_datalist %}<option value="{{ nome }}">{% endfor %}
+      </datalist>
+      <label>{{ form_lote.quantidade.label }}</label>
+      {{ form_lote.quantidade }}{{ form_lote.quantidade.errors }}
+      <label>{{ form_lote.custo_unitario.label }}</label>
+      {{ form_lote.custo_unitario }}{{ form_lote.custo_unitario.errors }}
+      <label>{{ form_lote.validade.label }} <small>(obrigatória para perecíveis)</small></label>
+      {{ form_lote.validade }}{{ form_lote.validade.errors }}
+      <label>{{ form_lote.numero_lote.label }} <small>(opcional)</small></label>
+      {{ form_lote.numero_lote }}{{ form_lote.numero_lote.errors }}
+      <button class="btn" type="submit">Adicionar ➜</button>
+    </form>
+  </section>
+
+  <!-- coluna 2: lotes acumulados -->
+  <section>
+    <h2>Recebimento em andamento</h2>
+    {% if linhas %}
+      <table>
+        <tr><th>Produto</th><th class="num">Qtd</th><th class="num">Custo</th><th>Validade</th><th class="num">Subtotal</th><th></th></tr>
+        {% for l in linhas %}
+        <tr>
+          <td>{{ l.produto.nome }}{% if l.numero_lote %}<br><small class="sub">lote {{ l.numero_lote }}</small>{% endif %}</td>
+          <td class="num">{{ l.quantidade|unlocalize }}</td>
+          <td class="num">R$ {{ l.custo }}</td>
+          <td>{% if l.validade %}{{ l.validade }}{% else %}—{% endif %}</td>
+          <td class="num">R$ {{ l.subtotal }}</td>
+          <td>
+            <form method="post" action="{% url 'remover_lote' l.indice %}">
+              {% csrf_token %}<button class="btn-x" title="remover">✕</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p class="total">Custo total: <strong>R$ {{ total }}</strong></p>
+      <form method="post" action="{% url 'finalizar_entrada' %}">
+        {% csrf_token %}
+        <label>{{ form_fim.fornecedor.label }}</label>
+        {{ form_fim.fornecedor }}{{ form_fim.fornecedor.errors }}
+        <label>{{ form_fim.observacao.label }}</label>
+        {{ form_fim.observacao }}{{ form_fim.observacao.errors }}
+        <button class="btn btn-fim" type="submit">Confirmar recebimento</button>
+      </form>
+    {% else %}
+      <p class="vazio">Nenhum lote ainda — registre o primeiro ao lado.</p>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

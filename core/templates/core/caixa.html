@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% load l10n %}
+{% block titulo %}Caixa{% endblock %}
+
+{% block estilo %}
+<style>
+  /* só o que é específico do caixa; o resto vem do base.html */
+  .btn-fim { background: #1a4a7a; font-size: 1.2rem; }
+  fieldset { border: 0; padding: 0; margin: .5rem 0; }
+  fieldset label { display: inline-block; margin-right: 1rem; font-size: 1rem; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main>
+  <!-- coluna 1: produto sendo registrado -->
+  <section>
+    <h2>Registrar produto</h2>
+    <form method="post" action="{% url 'adicionar_item' %}">
+      {% csrf_token %}
+      {% if form_item.non_field_errors %}<div class="erro">{{ form_item.non_field_errors }}</div>{% endif %}
+      <label for="{{ form_item.busca.id_for_label }}">{{ form_item.busca.label }} <small>({{ form_item.busca.help_text }})</small></label>
+      {{ form_item.busca }}
+      {{ form_item.busca.errors }}
+      <datalist id="produtos">
+        {% for nome in produtos_datalist %}<option value="{{ nome }}">{% endfor %}
+      </datalist>
+      <label for="{{ form_item.quantidade.id_for_label }}">{{ form_item.quantidade.label }}</label>
+      {{ form_item.quantidade }}
+      {{ form_item.quantidade.errors }}
+      <button class="btn" type="submit">Adicionar ➜</button>
+    </form>
+  </section>
+
+  <!-- coluna 2: linhas acumuladas -->
+  <section>
+    <h2>Venda em andamento</h2>
+    {% if linhas %}
+      <table>
+        <tr><th>Produto</th><th class="num">Qtd</th><th class="num">Subtotal</th><th></th></tr>
+        {% for l in linhas %}
+        <tr>
+          <td>{{ l.produto.nome }}</td>
+          <td class="num">{{ l.quantidade|unlocalize }}</td>
+          <td class="num">R$ {{ l.subtotal }}</td>
+          <td>
+            <form method="post" action="{% url 'remover_item' l.indice %}">
+              {% csrf_token %}<button class="btn-x" title="remover">✕</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p class="total">Total: <strong>R$ {{ total }}</strong></p>
+      <form method="post" action="{% url 'finalizar_venda' %}">
+        {% csrf_token %}
+        <fieldset>{{ form_fim.forma_pagamento }}</fieldset>
+        {{ form_fim.forma_pagamento.errors }}
+        <button class="btn btn-fim" type="submit">Finalizar venda</button>
+      </form>
+    {% else %}
+      <p class="vazio">Nenhum item ainda — registre o primeiro ao lado.</p>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+{% block titulo %}Fornecedores{% endblock %}
+{% block conteudo %}
+<main>
+  <section>
+    <h2>{% if editando %}Editar: {{ editando.nome }}{% else %}Novo fornecedor{% endif %}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="erro">{{ form.non_field_errors }}</div>{% endif %}
+      <label>{{ form.nome.label }}</label>{{ form.nome }}{{ form.nome.errors }}
+      <label>{{ form.tipo.label }}</label>{{ form.tipo }}{{ form.tipo.errors }}
+      <label>{{ form.observacao.label }}</label>{{ form.observacao }}{{ form.observacao.errors }}
+      <button class="btn" type="submit">{% if editando %}Salvar alterações{% else %}Cadastrar{% endif %}</button>
+      {% if editando %}<p><a class="linha" href="{% url 'fornecedores' %}">← cancelar edição</a></p>{% endif %}
+    </form>
+  </section>
+
+  <section>
+    <h2>Fornecedores cadastrados ({{ fornecedores|length }})</h2>
+    <table>
+      <tr><th>Nome</th><th>Tipo</th><th>Observação</th></tr>
+      {% for f in fornecedores %}
+      <tr>
+        <td><a class="linha" href="{% url 'fornecedor_editar' f.pk %}">{{ f.nome }}</a></td>
+        <td>{{ f.get_tipo_display }}</td>
+        <td>{{ f.observacao|truncatechars:40 }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+</main>
+{% endblock %}

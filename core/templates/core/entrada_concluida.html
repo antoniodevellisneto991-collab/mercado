@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% load l10n %}
+{% block titulo %}Entrada #{{ entrada.pk }}{% endblock %}
+
+{% block estilo %}
+<style>
+  main.uma-coluna { display: block; max-width: 560px; }
+  .ok { background: #e6f4ea; border: 1px solid #9c6; border-radius: 6px; padding: .6rem .8rem; margin-bottom: 1rem; }
+  .acoes { margin-top: 1.2rem; }
+  .acoes a { margin-right: 1rem; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main class="uma-coluna">
+  <section>
+    <div class="ok">✔ Recebimento registrado — estoque atualizado.</div>
+    <h2>Entrada #{{ entrada.pk }} — {{ entrada.data|date:'d/m/Y' }}</h2>
+    <p>
+      Fornecedor: {% if entrada.fornecedor %}{{ entrada.fornecedor.nome }}{% else %}—{% endif %}
+      {% if entrada.observacao %}<br>{{ entrada.observacao }}{% endif %}
+    </p>
+    <table>
+      <tr><th>Produto</th><th class="num">Qtd</th><th class="num">Custo un.</th><th>Validade</th></tr>
+      {% for lote in entrada.lotes.all %}
+      <tr>
+        <td>{{ lote.produto.nome }}{% if lote.numero_lote %} <small>(lote {{ lote.numero_lote }})</small>{% endif %}</td>
+        <td class="num">{{ lote.quantidade_inicial|unlocalize }}</td>
+        <td class="num">R$ {{ lote.custo_unitario }}</td>
+        <td>{% if lote.validade %}{{ lote.validade|date:'d/m/Y' }}{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="acoes">
+      <a class="linha" href="{% url 'entrada' %}">Nova entrada</a>
+      <a class="linha" href="{% url 'caixa' %}">Ir para o caixa</a>
+    </div>
+  </section>
+</main>
+{% endblock %}

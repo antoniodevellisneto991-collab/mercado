@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block titulo %}Produtos{% endblock %}
+{% block conteudo %}
+<main>
+  <!-- coluna 1: formulário (novo ou edição) -->
+  <section>
+    <h2>{% if editando %}Editar: {{ editando.nome }}{% else %}Novo produto{% endif %}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="erro">{{ form.non_field_errors }}</div>{% endif %}
+      <label>{{ form.nome.label }}</label>{{ form.nome }}{{ form.nome.errors }}
+      <label>{{ form.categoria.label }}</label>{{ form.categoria }}{{ form.categoria.errors }}
+      <label>{{ form.ean.label }}</label>{{ form.ean }}{{ form.ean.errors }}
+      <label>{{ form.unidade.label }}</label>{{ form.unidade }}{{ form.unidade.errors }}
+      <label>{{ form.preco_venda.label }}</label>{{ form.preco_venda }}{{ form.preco_venda.errors }}
+      <label>{{ form.estoque_minimo.label }}</label>{{ form.estoque_minimo }}{{ form.estoque_minimo.errors }}
+      <div class="chk">{{ form.perecivel }} <label for="{{ form.perecivel.id_for_label }}" style="margin:0">{{ form.perecivel.label }}</label></div>
+      <div class="chk">{{ form.ativo }} <label for="{{ form.ativo.id_for_label }}" style="margin:0">{{ form.ativo.label }}</label></div>
+      <button class="btn" type="submit">{% if editando %}Salvar alterações{% else %}Cadastrar{% endif %}</button>
+      {% if editando %}<p><a class="linha" href="{% url 'produtos' %}">← cancelar edição</a></p>{% endif %}
+    </form>
+  </section>
+
+  <!-- coluna 2: lista -->
+  <section>
+    <h2>Produtos cadastrados ({{ produtos|length }})</h2>
+    <table>
+      <tr><th>Nome</th><th>Categoria</th><th class="num">Preço</th><th class="num">Mínimo</th><th></th></tr>
+      {% for p in produtos %}
+      <tr>
+        <td><a class="linha {% if not p.ativo %}inativo{% endif %}" href="{% url 'produto_editar' p.pk %}">{{ p.nome }}</a></td>
+        <td>{{ p.get_categoria_display }}</td>
+        <td class="num">R$ {{ p.preco_venda }}</td>
+        <td class="num">{{ p.estoque_minimo }}</td>
+        <td>{% if p.perecivel %}<span class="tag">perecível</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+</main>
+{% endblock %}
