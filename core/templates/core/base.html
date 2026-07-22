@@ -1,13 +1,24 @@
-{% load l10n %}<!doctype html>
+{% load l10n static %}<!doctype html>
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block titulo %}Mercado{% endblock %}</title>
+{# PWA: instalável na tela de início do iPhone/Android, abre em tela cheia #}
+<link rel="manifest" href="{% static 'core/manifest.json' %}">
+<link rel="apple-touch-icon" href="{% static 'core/icone-180.png' %}">
+<meta name="theme-color" content="#333333">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mercado">
 <style>
   * { box-sizing: border-box; }
   body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f2; color: #222; }
-  header { background: #333; color: #fff; padding: 0 1rem; display: flex; align-items: center; gap: .2rem; }
+  header { background: #333; color: #fff; display: flex; align-items: center; gap: .2rem;
+           position: sticky; top: 0; z-index: 10;
+           /* env(): empurra o conteúdo para fora do notch/relógio do iPhone; vale 0 no desktop */
+           padding: env(safe-area-inset-top) calc(1rem + env(safe-area-inset-right)) 0 calc(1rem + env(safe-area-inset-left)); }
   header .marca { font-weight: bold; margin-right: 1rem; padding: .7rem 0; }
   header a.aba { color: #ccc; text-decoration: none; padding: .7rem .8rem; font-size: .9rem; }
   header a.aba:hover { background: #444; color: #fff; }
@@ -35,7 +46,12 @@
   .vazio { color: #888; font-style: italic; }
   .btn-x { background: none; border: 0; color: #a33; cursor: pointer; font-size: 1rem; }
   .total { font-size: 1.4rem; text-align: right; margin: .8rem 0; }
-  @media (max-width: 700px) { main { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+    header { overflow-x: auto; }              /* abas roláveis em vez de espremidas */
+    header a.aba { flex: none; padding: .7rem .6rem; }
+    section { overflow-x: auto; }             /* tabela larga rola dentro do cartão */
+  }
 </style>
 {% block estilo %}{% endblock %}
 </head>
