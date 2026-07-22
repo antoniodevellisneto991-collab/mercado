@@ -36,11 +36,12 @@ Guarde essa chave — vai para o servidor, nunca para o código.
 
 ## 2. Ambiente virtual no servidor
 
-No mesmo console Bash:
+No mesmo console Bash (use `python3.13` ou `python3.12` — Django 6 exige
+Python >= 3.12):
 
 ```bash
 cd ~/mercado
-python3.11 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py collectstatic --noinput
@@ -48,24 +49,26 @@ python manage.py collectstatic --noinput
 
 ## 3. Web app
 
-1. Aba **Web** → *Add a new web app* → **Manual configuration** → Python 3.11
+1. Aba **Web** → *Add a new web app* → **Manual configuration** → Python 3.13 (a MESMA versão do venv)
 2. Em **Virtualenv**, informe: `/home/SEUNOME/mercado/.venv`
-3. Em **Code → WSGI configuration file**, clique e substitua o conteúdo por:
+3. Em **Code → WSGI configuration file**, clique e substitua o conteúdo pelo
+   bloco abaixo. ATENÇÃO: cole SEM recuo — nenhuma linha pode começar com
+   espaço, senão o Python acusa IndentationError.
 
-   ```python
-   import os
-   import sys
+```python
+import os
+import sys
 
-   sys.path.insert(0, '/home/SEUNOME/mercado')
+sys.path.insert(0, '/home/SEUNOME/mercado')
 
-   os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
-   os.environ['DJANGO_DEBUG'] = '0'
-   os.environ['DJANGO_ALLOWED_HOSTS'] = 'SEUNOME.pythonanywhere.com'
-   os.environ['DJANGO_SECRET_KEY'] = 'COLE-AQUI-A-CHAVE-GERADA-NO-PASSO-0'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
+os.environ['DJANGO_DEBUG'] = '0'
+os.environ['DJANGO_ALLOWED_HOSTS'] = 'SEUNOME.pythonanywhere.com'
+os.environ['DJANGO_SECRET_KEY'] = 'COLE-AQUI-A-CHAVE-GERADA-NO-PASSO-0'
 
-   from django.core.wsgi import get_wsgi_application
-   application = get_wsgi_application()
-   ```
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+```
 
 4. Em **Static files**, adicione:
    - URL: `/static/`  →  Directory: `/home/SEUNOME/mercado/staticfiles`
