@@ -63,11 +63,15 @@ Cada funcionário tem seu login (usuário + senha) com um **nível de
 acesso**, gravado no modelo `Funcionario`. O menu e as telas se adaptam
 ao nível de quem entrou — e o servidor bloqueia o resto:
 
-| Nível | Vê | Começa em |
-|---|---|---|
-| Caixa | só o caixa | `/caixa/` |
-| Estoque | entrada, produtos, fornecedores | `/entrada/` |
-| Gerente | tudo, incluindo o `/admin/` | `/caixa/` |
+| Nível | Vê |
+|---|---|
+| Caixa | só o caixa |
+| Estoque | entrada, produtos, fornecedores |
+| Gerente | tudo, incluindo o `/admin/` |
+
+Depois do login, todos caem na **tela inicial** (`/`), que mostra um
+botão para cada área disponível àquele nível — o logotipo MERCADO no
+menu volta para ela de qualquer tela.
 
 Quem cria e edita logins é o gerente, em **`/admin/` → Usuários** — o
 nível de acesso aparece dentro da própria tela do usuário. Superusuário

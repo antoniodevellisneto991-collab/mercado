@@ -5,26 +5,28 @@ decide quais telas aparecem no menu, onde a pessoa começa e o que o
 servidor deixa acessar. Quem administra os logins é o gerente, pelo /admin/.
 """
 
+# O que cada área do sistema é — a tela inicial monta seus botões daqui.
+ABAS = {
+    'caixa': {'nome': 'Caixa', 'url': 'caixa', 'descricao': 'vender no balcão'},
+    'entrada': {'nome': 'Entrada', 'url': 'entrada', 'descricao': 'receber mercadoria'},
+    'produtos': {'nome': 'Produtos', 'url': 'produtos', 'descricao': 'catálogo e preços'},
+    'fornecedores': {'nome': 'Fornecedores', 'url': 'fornecedores', 'descricao': 'de quem se compra'},
+}
+
 PERFIS = {
     'caixa': {
         'nome': 'Caixa',
-        'descricao': 'vender no balcão',
         'abas': ['caixa'],
-        'inicio': 'caixa',
         'admin': False,
     },
     'estoque': {
         'nome': 'Estoque',
-        'descricao': 'receber mercadoria e cuidar do catálogo',
-        'abas': ['produtos', 'fornecedores', 'entrada'],
-        'inicio': 'entrada',
+        'abas': ['entrada', 'produtos', 'fornecedores'],
         'admin': False,
     },
     'gerente': {
         'nome': 'Gerente',
-        'descricao': 'todas as telas e a administração',
-        'abas': ['produtos', 'fornecedores', 'entrada', 'caixa'],
-        'inicio': 'caixa',
+        'abas': ['caixa', 'entrada', 'produtos', 'fornecedores'],
         'admin': True,
     },
 }

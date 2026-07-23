@@ -19,7 +19,7 @@
            position: sticky; top: 0; z-index: 10;
            /* env(): empurra o conteúdo para fora do notch/relógio do iPhone; vale 0 no desktop */
            padding: env(safe-area-inset-top) calc(1rem + env(safe-area-inset-right)) 0 calc(1rem + env(safe-area-inset-left)); }
-  header .marca { font-weight: bold; margin-right: 1rem; padding: .7rem 0; }
+  header .marca { font-weight: bold; margin-right: 1rem; padding: .7rem 0; color: #fff; text-decoration: none; }
   header a.aba { color: #ccc; text-decoration: none; padding: .7rem .8rem; font-size: .9rem; }
   header a.aba:hover { background: #444; color: #fff; }
   header a.aba.ativa { background: #f4f4f2; color: #222; border-radius: 6px 6px 0 0; font-weight: bold; }
@@ -60,7 +60,7 @@
 </head>
 <body>
 <header>
-  <span class="marca">MERCADO</span>
+  <a class="marca" href="{% url 'inicio' %}">MERCADO</a>
   {% if 'produtos' in abas_perfil %}<a class="aba {% if aba == 'produtos' %}ativa{% endif %}" href="{% url 'produtos' %}">Produtos</a>{% endif %}
   {% if 'fornecedores' in abas_perfil %}<a class="aba {% if aba == 'fornecedores' %}ativa{% endif %}" href="{% url 'fornecedores' %}">Fornecedores</a>{% endif %}
   {% if 'entrada' in abas_perfil %}<a class="aba {% if aba == 'entrada' %}ativa{% endif %}" href="{% url 'entrada' %}">Entrada</a>{% endif %}

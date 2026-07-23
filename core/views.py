@@ -20,7 +20,7 @@ from .forms import (
     FornecedorForm, ProdutoForm,
 )
 from .models import Entrada, Fornecedor, ItemVenda, Lote, Produto, Venda
-from .perfis import PERFIS, nivel_de
+from .perfis import ABAS, PERFIS, nivel_de
 from .services import baixar_estoque_fefo
 
 
@@ -42,7 +42,7 @@ def perfil_requerido(*permitidos):
                     request,
                     f'Esta tela é do nível {nomes} — seu acesso é {PERFIS[nivel]["nome"]}.'
                 )
-                return redirect(PERFIS[nivel]['inicio'])
+                return redirect('inicio')
             return view(request, *args, **kwargs)
         return login_required(wrapper)
     return decorador
@@ -50,11 +50,15 @@ def perfil_requerido(*permitidos):
 
 @login_required
 def inicio(request):
-    """Raiz do site: cada um cai na tela inicial do seu nível."""
+    """Tela zero: mostra os acessos disponíveis para o nível de quem entrou."""
     nivel = nivel_de(request.user)
     if nivel is None:
         return render(request, 'core/sem_acesso.html', status=403)
-    return redirect(PERFIS[nivel]['inicio'])
+    perfil = PERFIS[nivel]
+    return render(request, 'core/inicio.html', {
+        'acessos': [ABAS[a] for a in perfil['abas']],
+        'tem_admin': perfil['admin'],
+    })
 
 
 def _linhas_do_carrinho(session):
