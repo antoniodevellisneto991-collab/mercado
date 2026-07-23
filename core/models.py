@@ -191,6 +191,42 @@ class ItemVenda(models.Model):
         return f'{self.produto.nome} × {self.quantidade}'
 
 
+class Funcionario(models.Model):
+    """Liga um login (User do Django) ao seu nível de acesso no sistema.
+
+    A senha NÃO mora aqui — fica na tabela de usuários do Django, com
+    criptografia. Aqui mora só o que é nosso: o nível. As capacidades de
+    cada nível (abas, tela inicial, admin) estão em perfis.PERFIS.
+    """
+
+    class Nivel(models.TextChoices):
+        GERENTE = 'gerente', 'Gerente'
+        ESTOQUE = 'estoque', 'Estoque'
+        CAIXA = 'caixa', 'Caixa'
+
+    usuario = models.OneToOneField(
+        'auth.User', on_delete=models.CASCADE, related_name='funcionario'
+    )
+    nivel = models.CharField('nível de acesso', max_length=10, choices=Nivel.choices)
+
+    class Meta:
+        verbose_name = 'funcionário'
+        ordering = ['usuario__username']
+
+    def save(self, *args, **kwargs):
+        """Gerente precisa entrar no /admin/ (é lá que se criam logins) —
+        o Django exige a flag is_staff para isso. Mantém as duas em sincronia
+        para o dono não ter que conhecer esse detalhe interno."""
+        super().save(*args, **kwargs)
+        deve_ser_staff = self.nivel == self.Nivel.GERENTE or self.usuario.is_superuser
+        if self.usuario.is_staff != deve_ser_staff:
+            self.usuario.is_staff = deve_ser_staff
+            self.usuario.save(update_fields=['is_staff'])
+
+    def __str__(self):
+        return f'{self.usuario.username} — {self.get_nivel_display()}'
+
+
 class BaixaLote(models.Model):
     """Trilha de auditoria da baixa FEFO: qual lote atendeu qual item, e quanto.
 

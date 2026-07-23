@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+{% block titulo %}Entrar{% endblock %}
+
+{% block estilo %}
+<style>
+  main.login { grid-template-columns: 1fr; max-width: 420px; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main class="login">
+  <section>
+    <h2>Entrar</h2>
+    {% if form.non_field_errors %}<div class="erro">{{ form.non_field_errors }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label for="{{ form.username.id_for_label }}">Usuário</label>
+      {{ form.username }}
+      <label for="{{ form.password.id_for_label }}">Senha</label>
+      {{ form.password }}
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

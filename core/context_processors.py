@@ -1,10 +1,10 @@
-"""Deixa o perfil da sessão disponível em todo template (o base.html monta
-o menu a partir dele, sem que cada view precise repassar)."""
-from .perfis import PERFIS
+"""Deixa o nível de acesso do usuário logado disponível em todo template
+(o base.html monta o menu a partir dele, sem que cada view precise repassar)."""
+from .perfis import PERFIS, nivel_de
 
 
 def perfil(request):
-    info = PERFIS.get(request.session.get('perfil'))
+    info = PERFIS.get(nivel_de(request.user))
     if info is None:
         return {'perfil_nome': None, 'abas_perfil': (), 'perfil_admin': False}
     return {

@@ -23,12 +23,15 @@
   header a.aba { color: #ccc; text-decoration: none; padding: .7rem .8rem; font-size: .9rem; }
   header a.aba:hover { background: #444; color: #fff; }
   header a.aba.ativa { background: #f4f4f2; color: #222; border-radius: 6px 6px 0 0; font-weight: bold; }
-  header .dir { margin-left: auto; display: flex; gap: .2rem; }
+  header .dir { margin-left: auto; display: flex; gap: .2rem; align-items: center; }
+  header .quem { color: #999; }
+  header .btn-sair { background: none; border: 0; color: #ccc; cursor: pointer; font: inherit; font-size: .9rem; padding: .7rem .8rem; }
+  header .btn-sair:hover { background: #444; color: #fff; }
   main { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1rem; padding: 1rem; max-width: 1100px; margin: 0 auto; }
   section { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
   h2 { margin: 0 0 .8rem; font-size: 1rem; text-transform: uppercase; letter-spacing: .05em; color: #555; }
   label { display: block; font-size: .85rem; margin-top: .7rem; color: #444; }
-  input[type=text], input[type=number], input[type=date], select, textarea { width: 100%; padding: .55rem; font-size: 1.05rem; border: 1px solid #bbb; border-radius: 6px; }
+  input[type=text], input[type=password], input[type=number], input[type=date], select, textarea { width: 100%; padding: .55rem; font-size: 1.05rem; border: 1px solid #bbb; border-radius: 6px; }
   input[type=checkbox] { transform: scale(1.3); margin-right: .4rem; }
   .chk { display: flex; align-items: center; margin-top: .7rem; font-size: .95rem; }
   .btn { margin-top: .9rem; padding: .65rem 1.2rem; font-size: 1.05rem; border: 0; border-radius: 6px; cursor: pointer; background: #333; color: #fff; width: 100%; }
@@ -64,7 +67,10 @@
   {% if 'caixa' in abas_perfil %}<a class="aba {% if aba == 'caixa' %}ativa{% endif %}" href="{% url 'caixa' %}">Caixa</a>{% endif %}
   <span class="dir">
     {% if perfil_admin %}<a class="aba" href="/admin/">admin</a>{% endif %}
-    {% if perfil_nome %}<a class="aba" href="{% url 'perfil' %}" title="trocar perfil">{{ perfil_nome }} ⇄</a>{% endif %}
+    {% if perfil_nome %}
+      <span class="aba quem">{{ user.username }} · {{ perfil_nome }}</span>
+      <form method="post" action="{% url 'sair' %}">{% csrf_token %}<button class="aba btn-sair" type="submit">sair</button></form>
+    {% endif %}
   </span>
 </header>
 

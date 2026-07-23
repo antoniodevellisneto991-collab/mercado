@@ -17,10 +17,10 @@ E dois cadastros de apoio:
 - **`/fornecedores/`** — fornecedores
 
 O `/admin/` do Django cobre o que essas telas não cobrem: consultar lotes
-por vencimento, ver o total de estoque de cada produto contra o mínimo, e
+por vencimento, ver o total de estoque de cada produto contra o mínimo,
 lançar **ajustes** de estoque (perda, quebra, consumo interno, acerto de
-contagem). É também por ali que se faz login — não existe uma tela de
-login própria, `@login_required` aponta para `/admin/login/`.
+contagem) e **criar os logins** dos funcionários. O login do sistema tem
+tela própria em `/entrar/`.
 
 ## Início rápido (local)
 
@@ -36,9 +36,9 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Abra `http://127.0.0.1:8000/` — faça login e escolha um perfil. Cadastre
-ao menos um produto em `/produtos/` antes de tentar vender — o caixa não
-cria produto.
+Abra `http://127.0.0.1:8000/` e entre — cada usuário cai na tela do seu
+nível de acesso. Cadastre ao menos um produto em `/produtos/` antes de
+tentar vender — o caixa não cria produto.
 
 Requer Python ≥ 3.12 para produção (Django 6 exige; localmente o projeto
 também roda em 3.10/3.13 — veja `requirements.txt`).
@@ -57,22 +57,27 @@ desenvolvimento (`config/settings.py`):
 Passo a passo completo de deploy (PythonAnywhere, backup do banco, limites
 do plano gratuito): ver [`DEPLOY.md`](./DEPLOY.md).
 
-## Perfis de operação
+## Níveis de acesso
 
-Depois do login, o sistema pergunta **quem está usando** e adapta o menu:
+Cada funcionário tem seu login (usuário + senha) com um **nível de
+acesso**, gravado no modelo `Funcionario`. O menu e as telas se adaptam
+ao nível de quem entrou — e o servidor bloqueia o resto:
 
-| Perfil | Vê | Começa em |
+| Nível | Vê | Começa em |
 |---|---|---|
 | Caixa | só o caixa | `/caixa/` |
 | Estoque | entrada, produtos, fornecedores | `/entrada/` |
 | Gerente | tudo, incluindo o `/admin/` | `/caixa/` |
 
-O perfil fica na sessão do navegador e se troca a qualquer momento pelo
-nome do perfil no canto do menu (ou abrindo `/perfil/`). O servidor
-bloqueia telas de outro perfil, mas atenção: isso é **organização de
-trabalho, não segurança** — todos usam o mesmo login e qualquer um pode
-trocar de perfil. Contas separadas por funcionário, com senha própria,
-são o passo seguinte se um dia for necessário.
+Quem cria e edita logins é o gerente, em **`/admin/` → Usuários** — o
+nível de acesso aparece dentro da própria tela do usuário. Superusuário
+sem nível cadastrado conta como gerente; usuário comum sem nível não
+acessa nada até o gerente definir. A senha fica na tabela de usuários
+do Django, criptografada — nunca em texto puro.
+
+A instalação cria três logins de exemplo (`adm`/`adm` gerente,
+`estoque`/`estoque`, `caixa`/`caixa`) — **troque as senhas** assim que o
+sistema estiver em uso real: `python manage.py changepassword adm` etc.
 
 ## Uso do dia a dia
 

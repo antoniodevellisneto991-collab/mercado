@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+{% block titulo %}Sem acesso{% endblock %}
+
+{% block estilo %}
+<style>
+  main.sem-acesso { grid-template-columns: 1fr; max-width: 480px; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main class="sem-acesso">
+  <section>
+    <h2>Sem nível de acesso</h2>
+    <p>Seu usuário <strong>{{ user.username }}</strong> ainda não tem um
+    nível de acesso (caixa, estoque ou gerente).</p>
+    <p class="vazio">Peça ao gerente para definir o seu nível — leva um
+    minuto, na área administrativa.</p>
+    <form method="post" action="{% url 'sair' %}">
+      {% csrf_token %}
+      <button class="btn" type="submit">Sair e entrar com outro usuário</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

@@ -7,7 +7,10 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import Produto, Fornecedor, Entrada, Lote, Ajuste, Venda, ItemVenda
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+from .models import Produto, Fornecedor, Entrada, Lote, Ajuste, Venda, ItemVenda, Funcionario
 from .services import baixar_estoque_fefo
 
 
@@ -177,3 +180,28 @@ class AjusteAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Fornecedor)
+
+
+class FuncionarioInline(admin.StackedInline):
+    """O nível de acesso aparece dentro da própria tela de usuário —
+    criar um login e dar o nível é uma operação só."""
+
+    model = Funcionario
+    can_delete = False
+    verbose_name_plural = 'nível de acesso no sistema'
+
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class UserComNivelAdmin(UserAdmin):
+    inlines = [FuncionarioInline]
+    list_display = ('username', 'first_name', 'nivel', 'is_active')
+
+    @admin.display(description='nível')
+    def nivel(self, obj):
+        f = getattr(obj, 'funcionario', None)
+        if f:
+            return f.get_nivel_display()
+        return 'Gerente (dono)' if obj.is_superuser else '—'

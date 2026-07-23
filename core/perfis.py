@@ -1,10 +1,8 @@
-"""Perfis de operação: depois do login, quem está no balcão escolhe o seu.
+"""Níveis de acesso: cada login tem o seu, gravado em Funcionario.
 
-Um perfil não é um usuário — é um modo de trabalho guardado na sessão do
-navegador. Todos compartilham o mesmo login; o perfil decide quais telas
-aparecem no menu, onde a pessoa começa e o que o servidor deixa acessar.
-Troca de perfil é livre (tela /perfil/) — é organização do trabalho,
-não barreira de segurança entre funcionários.
+O nível vem da conta de quem entrou (não é mais escolha livre na sessão):
+decide quais telas aparecem no menu, onde a pessoa começa e o que o
+servidor deixa acessar. Quem administra os logins é o gerente, pelo /admin/.
 """
 
 PERFIS = {
@@ -30,3 +28,20 @@ PERFIS = {
         'admin': True,
     },
 }
+
+
+def nivel_de(user):
+    """Nível de acesso de um usuário logado, ou None.
+
+    A regra: o que vale é o registro Funcionario. Superusuário sem registro
+    conta como gerente (senão o dono se trancaria para fora do próprio
+    sistema). Usuário comum sem registro não tem acesso nenhum.
+    """
+    if not user.is_authenticated:
+        return None
+    funcionario = getattr(user, 'funcionario', None)  # OneToOne ausente vira None
+    if funcionario is not None:
+        return funcionario.nivel
+    if user.is_superuser:
+        return 'gerente'
+    return None

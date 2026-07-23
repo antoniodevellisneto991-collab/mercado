@@ -144,6 +144,10 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30  # 30 dias
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
+# Autenticação: tela de login própria (a do /admin/ rejeita quem não é staff)
+LOGIN_URL = 'entrar'
+LOGIN_REDIRECT_URL = '/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 

@@ -36,14 +36,22 @@ pip install --quiet -r requirements.txt
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput >/dev/null
 
-# usuário inicial do sistema (trocar a senha depois do primeiro acesso!)
+# logins iniciais com nível de acesso (trocar as senhas depois do primeiro acesso!)
 python manage.py shell -c "
 from django.contrib.auth.models import User
-u, _ = User.objects.get_or_create(username='adm')
-u.is_staff = True
-u.is_superuser = True
-u.set_password('adm')
-u.save()
+from core.models import Funcionario
+
+def garantir(username, senha, nivel, superuser=False):
+    u = User.objects.filter(username=username).first()
+    if u is None:
+        u = User.objects.create_superuser(username, '', senha) if superuser else User.objects.create_user(username, '', senha)
+    else:
+        u.set_password(senha); u.save()
+    Funcionario.objects.update_or_create(usuario=u, defaults={'nivel': nivel})
+
+garantir('adm', 'adm', 'gerente', superuser=True)
+garantir('caixa', 'caixa', 'caixa')
+garantir('estoque', 'estoque', 'estoque')
 "
 
 # chave sem caracteres especiais de shell, segura para colar entre aspas
@@ -93,7 +101,10 @@ application = get_wsgi_application()
 
       https://$USER.pythonanywhere.com/caixa/
 
- Login: adm   Senha: adm
- (troque a senha depois: python manage.py changepassword adm)
+ Logins criados (usuario / senha / o que ve):
+   adm / adm         -> gerente (tudo + administracao)
+   estoque / estoque -> entrada, produtos e fornecedores
+   caixa / caixa     -> so o caixa
+ (troque as senhas depois: python manage.py changepassword adm  etc.)
 ======================================================================
 FIM

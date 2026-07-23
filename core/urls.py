@@ -1,10 +1,14 @@
+from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
-    path('perfil/', views.escolher_perfil, name='perfil'),
+    path('entrar/', auth_views.LoginView.as_view(
+        template_name='core/login.html', redirect_authenticated_user=True,
+    ), name='entrar'),
+    path('sair/', auth_views.LogoutView.as_view(next_page='entrar'), name='sair'),
     path('caixa/', views.caixa, name='caixa'),
     path('caixa/adicionar/', views.adicionar_item, name='adicionar_item'),
     path('caixa/remover/<int:indice>/', views.remover_item, name='remover_item'),

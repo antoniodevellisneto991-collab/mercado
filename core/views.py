@@ -20,49 +20,41 @@ from .forms import (
     FornecedorForm, ProdutoForm,
 )
 from .models import Entrada, Fornecedor, ItemVenda, Lote, Produto, Venda
-from .perfis import PERFIS
+from .perfis import PERFIS, nivel_de
 from .services import baixar_estoque_fefo
-
-LOGIN_URL = '/admin/login/'
 
 
 def perfil_requerido(*permitidos):
-    """Exige login E um perfil da lista. Sem perfil escolhido, manda para a
-    tela de escolha; com perfil errado, devolve para a tela inicial dele
-    com um aviso — nunca um erro seco."""
+    """Exige login E que o nível do usuário esteja na lista.
+
+    Sem nível cadastrado, mostra a página explicando a quem pedir; com
+    nível errado, devolve para a tela inicial dele com um aviso — nunca
+    um erro seco."""
     def decorador(view):
         @wraps(view)
         def wrapper(request, *args, **kwargs):
-            perfil = request.session.get('perfil')
-            if perfil not in PERFIS:
-                return redirect('perfil')
-            if perfil not in permitidos:
+            nivel = nivel_de(request.user)
+            if nivel is None:
+                return render(request, 'core/sem_acesso.html', status=403)
+            if nivel not in permitidos:
                 nomes = ' ou '.join(PERFIS[p]['nome'] for p in permitidos)
                 messages.error(
                     request,
-                    f'Esta tela é do perfil {nomes} — troque o perfil para acessá-la.'
+                    f'Esta tela é do nível {nomes} — seu acesso é {PERFIS[nivel]["nome"]}.'
                 )
-                return redirect(PERFIS[perfil]['inicio'])
+                return redirect(PERFIS[nivel]['inicio'])
             return view(request, *args, **kwargs)
-        return login_required(wrapper, login_url=LOGIN_URL)
+        return login_required(wrapper)
     return decorador
 
 
-@login_required(login_url=LOGIN_URL)
+@login_required
 def inicio(request):
-    """Raiz do site: quem já tem perfil cai na tela dele; quem não tem, escolhe."""
-    info = PERFIS.get(request.session.get('perfil'))
-    return redirect(info['inicio'] if info else 'perfil')
-
-
-@login_required(login_url=LOGIN_URL)
-def escolher_perfil(request):
-    if request.method == 'POST':
-        escolhido = request.POST.get('perfil')
-        if escolhido in PERFIS:
-            request.session['perfil'] = escolhido
-            return redirect(PERFIS[escolhido]['inicio'])
-    return render(request, 'core/perfil.html', {'perfis': PERFIS})
+    """Raiz do site: cada um cai na tela inicial do seu nível."""
+    nivel = nivel_de(request.user)
+    if nivel is None:
+        return render(request, 'core/sem_acesso.html', status=403)
+    return redirect(PERFIS[nivel]['inicio'])
 
 
 def _linhas_do_carrinho(session):
