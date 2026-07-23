@@ -1,7 +1,7 @@
 {
   "name": "Mercado — Caixa e Estoque",
   "short_name": "Mercado",
-  "start_url": "/caixa/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f4f4f2",

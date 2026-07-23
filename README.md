@@ -36,9 +36,9 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Abra `http://127.0.0.1:8000/admin/login/` para logar, depois
-`http://127.0.0.1:8000/caixa/`. Cadastre ao menos um produto em
-`/produtos/` antes de tentar vender — o caixa não cria produto.
+Abra `http://127.0.0.1:8000/` — faça login e escolha um perfil. Cadastre
+ao menos um produto em `/produtos/` antes de tentar vender — o caixa não
+cria produto.
 
 Requer Python ≥ 3.12 para produção (Django 6 exige; localmente o projeto
 também roda em 3.10/3.13 — veja `requirements.txt`).
@@ -56,6 +56,23 @@ desenvolvimento (`config/settings.py`):
 
 Passo a passo completo de deploy (PythonAnywhere, backup do banco, limites
 do plano gratuito): ver [`DEPLOY.md`](./DEPLOY.md).
+
+## Perfis de operação
+
+Depois do login, o sistema pergunta **quem está usando** e adapta o menu:
+
+| Perfil | Vê | Começa em |
+|---|---|---|
+| Caixa | só o caixa | `/caixa/` |
+| Estoque | entrada, produtos, fornecedores | `/entrada/` |
+| Gerente | tudo, incluindo o `/admin/` | `/caixa/` |
+
+O perfil fica na sessão do navegador e se troca a qualquer momento pelo
+nome do perfil no canto do menu (ou abrindo `/perfil/`). O servidor
+bloqueia telas de outro perfil, mas atenção: isso é **organização de
+trabalho, não segurança** — todos usam o mesmo login e qualquer um pode
+trocar de perfil. Contas separadas por funcionário, com senha própria,
+são o passo seguinte se um dia for necessário.
 
 ## Uso do dia a dia
 
@@ -104,6 +121,7 @@ app pede login de novo. Os arquivos do PWA vivem em `core/static/core/`
 config/     settings, urls, wsgi/asgi (padrão startproject)
 core/       toda a aplicação
   models.py    Produto, Fornecedor, Entrada, Lote, Ajuste, Venda, ItemVenda, BaixaLote
+  perfis.py    perfis de operação (caixa/estoque/gerente) e o que cada um vê
   forms.py     formulários do caixa e da entrada (não são ModelForm)
   services.py  baixar_estoque_fefo — a única regra que atravessa vários modelos
   views.py     caixa, entrada, cadastros

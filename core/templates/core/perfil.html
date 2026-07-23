@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% block titulo %}Escolher perfil{% endblock %}
+
+{% block estilo %}
+<style>
+  main.perfil { grid-template-columns: 1fr; max-width: 480px; }
+  .perfil-btn { display: block; width: 100%; margin-top: .8rem; padding: 1rem 1.2rem;
+                border: 1px solid #bbb; border-radius: 8px; background: #fff;
+                cursor: pointer; text-align: left; font-family: inherit; }
+  .perfil-btn strong { display: block; font-size: 1.25rem; }
+  .perfil-btn small { color: #666; font-size: .9rem; }
+  .perfil-btn:hover, .perfil-btn:focus { border-color: #1a4a7a; outline: none; }
+</style>
+{% endblock %}
+
+{% block conteudo %}
+<main class="perfil">
+  <section>
+    <h2>Quem está usando?</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% for chave, p in perfis.items %}
+      <button class="perfil-btn" type="submit" name="perfil" value="{{ chave }}">
+        <strong>{{ p.nome }}</strong>
+        <small>{{ p.descricao }}</small>
+      </button>
+      {% endfor %}
+    </form>
+  </section>
+</main>
+{% endblock %}

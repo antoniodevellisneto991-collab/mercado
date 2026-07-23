@@ -6,6 +6,7 @@ Sessão só guarda o que é JSON — por isso Decimal vira str ao entrar
 e volta a Decimal ao sair.
 """
 from decimal import Decimal
+from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,9 +20,49 @@ from .forms import (
     FornecedorForm, ProdutoForm,
 )
 from .models import Entrada, Fornecedor, ItemVenda, Lote, Produto, Venda
+from .perfis import PERFIS
 from .services import baixar_estoque_fefo
 
 LOGIN_URL = '/admin/login/'
+
+
+def perfil_requerido(*permitidos):
+    """Exige login E um perfil da lista. Sem perfil escolhido, manda para a
+    tela de escolha; com perfil errado, devolve para a tela inicial dele
+    com um aviso — nunca um erro seco."""
+    def decorador(view):
+        @wraps(view)
+        def wrapper(request, *args, **kwargs):
+            perfil = request.session.get('perfil')
+            if perfil not in PERFIS:
+                return redirect('perfil')
+            if perfil not in permitidos:
+                nomes = ' ou '.join(PERFIS[p]['nome'] for p in permitidos)
+                messages.error(
+                    request,
+                    f'Esta tela é do perfil {nomes} — troque o perfil para acessá-la.'
+                )
+                return redirect(PERFIS[perfil]['inicio'])
+            return view(request, *args, **kwargs)
+        return login_required(wrapper, login_url=LOGIN_URL)
+    return decorador
+
+
+@login_required(login_url=LOGIN_URL)
+def inicio(request):
+    """Raiz do site: quem já tem perfil cai na tela dele; quem não tem, escolhe."""
+    info = PERFIS.get(request.session.get('perfil'))
+    return redirect(info['inicio'] if info else 'perfil')
+
+
+@login_required(login_url=LOGIN_URL)
+def escolher_perfil(request):
+    if request.method == 'POST':
+        escolhido = request.POST.get('perfil')
+        if escolhido in PERFIS:
+            request.session['perfil'] = escolhido
+            return redirect(PERFIS[escolhido]['inicio'])
+    return render(request, 'core/perfil.html', {'perfis': PERFIS})
 
 
 def _linhas_do_carrinho(session):
@@ -50,12 +91,12 @@ def _render_caixa(request, form_item=None, form_fim=None):
     })
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('caixa', 'gerente')
 def caixa(request):
     return _render_caixa(request)
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('caixa', 'gerente')
 @require_POST
 def adicionar_item(request):
     form = AdicionarItemForm(request.POST)
@@ -78,7 +119,7 @@ def adicionar_item(request):
     return redirect('caixa')
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('caixa', 'gerente')
 @require_POST
 def remover_item(request, indice):
     carrinho = request.session.get('carrinho', [])
@@ -88,7 +129,7 @@ def remover_item(request, indice):
     return redirect('caixa')
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('caixa', 'gerente')
 @require_POST
 def finalizar_venda(request):
     carrinho = request.session.get('carrinho', [])
@@ -114,7 +155,7 @@ def finalizar_venda(request):
     return redirect('venda_concluida', pk=venda.pk)
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('caixa', 'gerente')
 def venda_concluida(request, pk):
     venda = get_object_or_404(Venda.objects.prefetch_related('itens__produto'), pk=pk)
     return render(request, 'core/venda_concluida.html', {'venda': venda})
@@ -160,12 +201,12 @@ def _render_entrada(request, form_lote=None, form_fim=None):
     })
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 def entrada_mercadoria(request):
     return _render_entrada(request)
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 @require_POST
 def adicionar_lote(request):
     form = AdicionarLoteForm(request.POST)
@@ -185,7 +226,7 @@ def adicionar_lote(request):
     return redirect('entrada')
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 @require_POST
 def remover_lote(request, indice):
     itens = request.session.get('entrada_itens', [])
@@ -195,7 +236,7 @@ def remover_lote(request, indice):
     return redirect('entrada')
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 @require_POST
 def finalizar_entrada(request):
     itens = request.session.get('entrada_itens', [])
@@ -231,7 +272,7 @@ def finalizar_entrada(request):
     return redirect('entrada_concluida', pk=entrada.pk)
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 def entrada_concluida(request, pk):
     entrada = get_object_or_404(
         Entrada.objects.prefetch_related('lotes__produto'), pk=pk
@@ -258,7 +299,7 @@ def _tela_cadastro(request, *, form_cls, template, contexto_lista, url_ok, insta
     return render(request, template, {**contexto_lista(), 'form': form, 'editando': instancia})
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 def produtos(request, pk=None):
     instancia = get_object_or_404(Produto, pk=pk) if pk else None
     return _tela_cadastro(
@@ -271,7 +312,7 @@ def produtos(request, pk=None):
     )
 
 
-@login_required(login_url=LOGIN_URL)
+@perfil_requerido('estoque', 'gerente')
 def fornecedores(request, pk=None):
     instancia = get_object_or_404(Fornecedor, pk=pk) if pk else None
     return _tela_cadastro(
