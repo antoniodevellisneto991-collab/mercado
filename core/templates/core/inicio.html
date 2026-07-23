@@ -4,31 +4,18 @@
 {% block estilo %}
 <style>
   main.inicio { grid-template-columns: 1fr; max-width: 520px; }
-  .acesso { display: block; margin-top: .8rem; padding: 1rem 1.2rem;
-            border: 1px solid #bbb; border-radius: 8px; background: #fff;
-            text-decoration: none; color: inherit; }
-  .acesso strong { display: block; font-size: 1.25rem; }
-  .acesso small { color: #666; font-size: .9rem; }
-  .acesso:hover, .acesso:focus { border-color: #1a4a7a; }
+  .inicio h2 { font-size: 1.4rem; text-transform: none; letter-spacing: 0; color: #222; }
+  .inicio .quem { margin: .4rem 0 0; font-size: 1.05rem; }
+  .inicio .dica { margin-top: 1rem; color: #666; }
 </style>
 {% endblock %}
 
 {% block conteudo %}
 <main class="inicio">
   <section>
-    <h2>Olá, {{ user.username }} · acesso {{ perfil_nome }}</h2>
-    {% for a in acessos %}
-    <a class="acesso" href="{% url a.url %}">
-      <strong>{{ a.nome }}</strong>
-      <small>{{ a.descricao }}</small>
-    </a>
-    {% endfor %}
-    {% if tem_admin %}
-    <a class="acesso" href="/admin/">
-      <strong>Administração</strong>
-      <small>lotes, ajustes, relatórios e logins</small>
-    </a>
-    {% endif %}
+    <h2>Bem-vindo ao Mercado</h2>
+    <p class="quem">Você entrou como <strong>{{ user.username }}</strong> ({{ perfil_nome }}).</p>
+    <p class="dica">Use o menu acima para navegar.</p>
   </section>
 </main>
 {% endblock %}

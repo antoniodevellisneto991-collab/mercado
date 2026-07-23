@@ -69,9 +69,10 @@ ao nível de quem entrou — e o servidor bloqueia o resto:
 | Estoque | entrada, produtos, fornecedores |
 | Gerente | tudo, incluindo o `/admin/` |
 
-Depois do login, todos caem na **tela inicial** (`/`), que mostra um
-botão para cada área disponível àquele nível — o logotipo MERCADO no
-menu volta para ela de qualquer tela.
+Depois do login, todos caem na mesma **tela inicial** (`/`) de
+boas-vindas, que mostra quem entrou e o nível; a navegação é o menu do
+topo, que já lista só as abas daquele nível. O logotipo MERCADO volta
+para essa tela de qualquer lugar.
 
 Quem cria e edita logins é o gerente, em **`/admin/` → Usuários** — o
 nível de acesso aparece dentro da própria tela do usuário. Superusuário

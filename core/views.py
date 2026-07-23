@@ -20,7 +20,7 @@ from .forms import (
     FornecedorForm, ProdutoForm,
 )
 from .models import Entrada, Fornecedor, ItemVenda, Lote, Produto, Venda
-from .perfis import ABAS, PERFIS, nivel_de
+from .perfis import PERFIS, nivel_de
 from .services import baixar_estoque_fefo
 
 
@@ -50,15 +50,11 @@ def perfil_requerido(*permitidos):
 
 @login_required
 def inicio(request):
-    """Tela zero: mostra os acessos disponíveis para o nível de quem entrou."""
-    nivel = nivel_de(request.user)
-    if nivel is None:
+    """Tela zero: boas-vindas iguais para todos; a navegação é o menu do topo,
+    que já mostra só as abas do nível de quem entrou."""
+    if nivel_de(request.user) is None:
         return render(request, 'core/sem_acesso.html', status=403)
-    perfil = PERFIS[nivel]
-    return render(request, 'core/inicio.html', {
-        'acessos': [ABAS[a] for a in perfil['abas']],
-        'tem_admin': perfil['admin'],
-    })
+    return render(request, 'core/inicio.html')
 
 
 def _linhas_do_carrinho(session):
